@@ -91,7 +91,7 @@ public class UdpClientWrapper : IUdpClient
 
     public override bool Equals(object? obj)
     {
-        if (obj is null or not UdpClientWrapper)
+        if (obj is not UdpClientWrapper)
             return false;
         else
             return this.GetHashCode() == ((UdpClientWrapper) obj).GetHashCode();
