@@ -88,4 +88,12 @@ public class UdpClientWrapper : IUdpClient
 
         return BitConverter.ToInt32(hash, 0);
     }
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is null or not UdpClientWrapper)
+            return false;
+        else
+            return this.GetHashCode() == ((UdpClientWrapper) obj).GetHashCode();
+    }
 }
