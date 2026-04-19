@@ -45,6 +45,10 @@ public class UdpClientWrapper : IUdpClient
         {
             Console.WriteLine($"Error receiving message: {ex.Message}");
         }
+        finally
+        {
+            _cts.Dispose();
+        }
     }
 
     public void StopListening()
