@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+namespace EchoServer;
+
 /// <summary>
 /// This program was designed for test purposes only
 /// Not for a review
