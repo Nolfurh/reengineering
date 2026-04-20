@@ -80,7 +80,8 @@ namespace NetSdrClientApp.Networking
             if (Connected && _stream != null && _stream.CanWrite)
             {
                 Console.WriteLine($"Message sent: " + data.Select(b => Convert.ToString(b, toBase: 16)).Aggregate((l, r) => $"{l} {r}"));
-                await _stream.WriteAsync(data, 0, data.Length);
+                if(_cts is not null)
+                    await _stream.WriteAsync(data.AsMemory(), _cts.Token);
             }
             else
             {
@@ -94,7 +95,8 @@ namespace NetSdrClientApp.Networking
             if (Connected && _stream != null && _stream.CanWrite)
             {
                 Console.WriteLine($"Message sent: " + data.Select(b => Convert.ToString(b, toBase: 16)).Aggregate((l, r) => $"{l} {r}"));
-                await _stream.WriteAsync(data, 0, data.Length);
+                if (_cts is not null)
+                    await _stream.WriteAsync(data.AsMemory(), _cts.Token);
             }
             else
             {
