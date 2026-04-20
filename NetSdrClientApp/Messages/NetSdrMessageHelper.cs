@@ -117,7 +117,11 @@ namespace NetSdrClientApp.Messages
             var bodyEnumerable = body as IEnumerable<byte>;
             var prefixBytes = Enumerable.Range(0, 4 - sampleSize)
                                       .Select(b => (byte)0);
+            return GetSamplesIterator(sampleSize, body, prefixBytes);
+        }
 
+        public static IEnumerable<int> GetSamplesIterator(ushort sampleSize, IEnumerable<byte> bodyEnumerable, IEnumerable<byte> prefixBytes)
+        {
             while (bodyEnumerable.Count() >= sampleSize)
             {
                 yield return BitConverter.ToInt32(bodyEnumerable
