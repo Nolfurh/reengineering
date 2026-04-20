@@ -120,7 +120,7 @@ public class UdpTimedSender : IDisposable
     private readonly string _host;
     private readonly int _port;
     private readonly UdpClient _udpClient;
-    private Timer _timer;
+    private Timer? _timer;
 
     public UdpTimedSender(string host, int port)
     {
