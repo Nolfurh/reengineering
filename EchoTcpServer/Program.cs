@@ -169,7 +169,22 @@ public class UdpTimedSender : IDisposable
 
     public void Dispose()
     {
-        StopSending();
-        _udpClient.Dispose();
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    bool _disposed = false;
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (_disposed) return;
+
+        if (disposing)
+        {
+            StopSending();
+            _udpClient.Dispose();
+        }
+
+        _disposed = true;
     }
 }
