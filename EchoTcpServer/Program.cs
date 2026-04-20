@@ -139,7 +139,7 @@ public class UdpTimedSender : IDisposable
 
     ushort i = 0;
 
-    private void SendMessageCallback(object state)
+    private void SendMessageCallback(object? state)
     {
         try
         {
