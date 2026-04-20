@@ -37,10 +37,10 @@ public class UdpClientWrapper : IUdpClient
                 Console.WriteLine($"Received from {result.RemoteEndPoint}");
             }
         }
-        catch (OperationCanceledException ex)
-        {
-            //empty
-        }
+        // catch (OperationCanceledException ex)
+        // {
+        //     //empty
+        // }
         catch (Exception ex)
         {
             Console.WriteLine($"Error receiving message: {ex.Message}");
