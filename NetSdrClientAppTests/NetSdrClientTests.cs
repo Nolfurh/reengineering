@@ -1,6 +1,8 @@
 ﻿using Moq;
 using NetSdrClientApp;
+using NetSdrClientApp.Messages;
 using NetSdrClientApp.Networking;
+using static NetSdrClientApp.Messages.NetSdrMessageHelper;
 
 namespace NetSdrClientAppTests;
 
@@ -116,4 +118,40 @@ public class NetSdrClientTests
     }
 
     //TODO: cover the rest of the NetSdrClient code here
+
+    [Test]
+    public async Task ChangeFrequencyNoConnectionTest()
+    {
+
+        // Act
+        await _client.ChangeFrequencyAsync(14000000, 1);
+
+        // Assert
+        _tcpMock.Verify(tcp => tcp.SendMessageAsync(It.IsAny<byte[]>()), Times.Never);
+    }
+
+    [Test]
+    public async Task ChangeFrequencyTest()
+    {
+        // Arrange 
+        await _client.ConnectAsync(); 
+        _tcpMock.Invocations.Clear(); 
+        long hz = 14000000;
+        int channel = 1;
+        var expectedChannelArg = (byte)channel;
+        var expectedFrequencyArgs = BitConverter.GetBytes(hz).Take(5).ToArray();
+        var expectedArgs = new byte[] { expectedChannelArg }.Concat(expectedFrequencyArgs).ToArray();
+        var expectedMessage = NetSdrMessageHelper.GetControlItemMessage(
+            MsgTypes.SetControlItem, 
+            ControlItemCodes.ReceiverFrequency, 
+            expectedArgs);
+
+        // Act
+        await _client.ChangeFrequencyAsync(hz, channel);
+
+        // Assert
+        _tcpMock.Verify(tcp => tcp.SendMessageAsync(It.Is<byte[]>(
+            actualMessage => actualMessage.SequenceEqual(expectedMessage)
+        )), Times.Once);
+    }
 }
