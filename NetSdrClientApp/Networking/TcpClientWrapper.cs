@@ -49,10 +49,7 @@ namespace NetSdrClientApp.Networking
             catch (Exception ex)
             {
                 Console.WriteLine($"Failed to connect: {ex.Message}");
-            }
-            finally
-            {
-                _cts.Dispose();
+                Disconnect();
             }
         }
 
@@ -61,6 +58,8 @@ namespace NetSdrClientApp.Networking
             if (Connected)
             {
                 _cts?.Cancel();
+                _cts?.Dispose();
+                _cts = null;
                 _stream?.Close();
                 _tcpClient?.Close();
 
