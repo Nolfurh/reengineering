@@ -144,7 +144,7 @@ public class ProgramTests
     public async Task WriteAsync_and_ReadAsync_Test()
     {
         // Arrange
-        _serverTask = _server.StartAsync();
+        _server.Start();
 
         await Task.Delay(100); 
 

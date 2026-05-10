@@ -16,6 +16,7 @@ public class EchoServer : IDisposable
     private readonly int _port;
     private TcpListener? _listener;
     private readonly CancellationTokenSource _cancellationTokenSource;
+    private Task? _acceptLoopTask;
     private bool _disposed = false;
 
 
@@ -25,12 +26,17 @@ public class EchoServer : IDisposable
         _cancellationTokenSource = new CancellationTokenSource();
     }
 
-    public async Task StartAsync()
+    public void Start()
     {
         _listener = new TcpListener(IPAddress.Any, _port);
-        _listener.Start();
+        _listener.Start(); 
         Console.WriteLine($"Server started on port {_port}.");
 
+        _acceptLoopTask = Task.Run(() => AcceptClientsAsync());
+    }
+
+    private async Task AcceptClientsAsync()
+    {
         while (!_cancellationTokenSource.Token.IsCancellationRequested)
         {
             try
@@ -45,8 +51,12 @@ public class EchoServer : IDisposable
                 // Listener has been closed
                 break;
             }
+            catch (SocketException ex) when (ex.SocketErrorCode == SocketError.OperationAborted || ex.SocketErrorCode == SocketError.Interrupted)
+            { 
+                break;
+            }
         }
-
+        
         Console.WriteLine("Server shutdown.");
     }
 
@@ -89,12 +99,12 @@ public class EchoServer : IDisposable
         Console.WriteLine("Server stopped.");
     }
 
-    public static async Task Main(string[] args)
+    public static void Main(string[] args)
     {
         EchoServer server = new EchoServer(5000);
 
         // Start the server in a separate task
-        _ = Task.Run(() => server.StartAsync());
+        server.Start();
 
         string host = "127.0.0.1"; // Target IP
         int port = 60000;          // Target Port
