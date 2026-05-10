@@ -11,11 +11,12 @@ namespace EchoServer;
 /// This program was designed for test purposes only
 /// Not for a review
 /// </summary>
-public class EchoServer
+public class EchoServer : IDisposable
 {
     private readonly int _port;
     private TcpListener? _listener;
     private readonly CancellationTokenSource _cancellationTokenSource;
+    private bool _disposed = false;
 
 
     public EchoServer(int port)
@@ -79,9 +80,12 @@ public class EchoServer
 
     public void Stop()
     {
+        if (_disposed)
+            return;
+
         _cancellationTokenSource.Cancel();
-        _listener.Stop();
-        _cancellationTokenSource.Dispose();
+        _listener?.Stop();
+
         Console.WriteLine("Server stopped.");
     }
 
@@ -111,6 +115,17 @@ public class EchoServer
             server.Stop();
             Console.WriteLine("Sender stopped.");
         }
+    }
+
+    public void Dispose()
+    {
+        if (!_disposed)
+        {
+            Stop();
+            _cancellationTokenSource.Dispose();
+            _disposed = true;
+        }
+        GC.SuppressFinalize(this);
     }
 }
 

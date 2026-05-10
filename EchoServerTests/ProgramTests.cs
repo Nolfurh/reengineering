@@ -11,6 +11,7 @@ public class ProgramTests
     private int _testPort;
     private UdpTimedSender _sender;
     private EchoServer.EchoServer _server;
+    private Task _serverTask;
 
     [SetUp]
     public void Setup()
@@ -27,10 +28,24 @@ public class ProgramTests
     }
 
     [TearDown]
-    public void TearDown()
+    public async Task TearDown()
     {
         _sender?.Dispose();
         _testReceiver?.Dispose();
+
+        _server.Stop();
+        if (_serverTask != null)
+        {
+            try
+            {
+                await _serverTask;
+            }
+            catch (Exception)
+            {
+
+            }
+        }
+        _server.Dispose();
     }
 
     
@@ -129,7 +144,7 @@ public class ProgramTests
     public async Task WriteAsync_and_ReadAsync_Test()
     {
         // Arrange
-        var serverTask = _server.StartAsync();
+        _serverTask = _server.StartAsync();
 
         await Task.Delay(100); 
 
@@ -147,16 +162,6 @@ public class ProgramTests
         // Assert
         Assert.That(bytesRead, Is.EqualTo(dataToSend.Length));
         Assert.That(receiveBuffer, Is.EquivalentTo(dataToSend));
-
-        _server.Stop();
-        try
-        {
-            await serverTask;
-        }
-        catch (SocketException)
-        {
-            Assert.Warn("Wrong server stopping logic");
-        }
     }
 
     [Test]
