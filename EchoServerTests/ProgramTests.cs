@@ -84,7 +84,6 @@ public class ProgramTests
     }
 
     [Test]
-    [Ignore("For SonarQube")]
     public void StartSending_AfterDispose_Test()
     {
         // Arrange
@@ -116,7 +115,6 @@ public class ProgramTests
 
 
     [Test]
-    [Ignore("For SonarQube")]
     public void Stop_NotStartedServer_Test()
     {
         // Assert
