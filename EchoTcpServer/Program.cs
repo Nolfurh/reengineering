@@ -146,6 +146,9 @@ public class UdpTimedSender : IDisposable
 
     public void StartSending(int intervalMilliseconds)
     {
+        if (_disposed)
+            throw new ObjectDisposedException(nameof(UdpTimedSender));
+
         if (_timer != null)
             throw new InvalidOperationException("Sender is already running.");
 
