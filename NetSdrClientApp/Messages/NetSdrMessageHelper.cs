@@ -50,7 +50,6 @@ namespace NetSdrClientApp.Messages
 
         private static byte[] GetMessage(MsgTypes type, ControlItemCodes itemCode, byte[] parameters)
         {
-            var tcpClientWrapper = new NetSdrClientApp.Networking.TcpClientWrapper("For architecture test", 0);
             var itemCodeBytes = Array.Empty<byte>();
             if (itemCode != ControlItemCodes.None)
             {
