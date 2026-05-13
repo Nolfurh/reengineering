@@ -6,6 +6,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+namespace NetSdrClientApp.Networking;
+
 public class UdpClientWrapper : IUdpClient
 {
     private readonly IPEndPoint _localEndPoint;
@@ -35,13 +37,17 @@ public class UdpClientWrapper : IUdpClient
                 Console.WriteLine($"Received from {result.RemoteEndPoint}");
             }
         }
-        catch (OperationCanceledException ex)
-        {
-            //empty
-        }
+        // catch (OperationCanceledException ex)
+        // {
+        //     //empty
+        // }
         catch (Exception ex)
         {
             Console.WriteLine($"Error receiving message: {ex.Message}");
+        }
+        finally
+        {
+            _cts.Dispose();
         }
     }
 
@@ -61,25 +67,23 @@ public class UdpClientWrapper : IUdpClient
 
     public void Exit()
     {
-        try
-        {
-            _cts?.Cancel();
-            _udpClient?.Close();
-            Console.WriteLine("Stopped listening for UDP messages.");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error while stopping: {ex.Message}");
-        }
+        StopListening();
     }
 
     public override int GetHashCode()
     {
         var payload = $"{nameof(UdpClientWrapper)}|{_localEndPoint.Address}|{_localEndPoint.Port}";
 
-        using var md5 = MD5.Create();
-        var hash = md5.ComputeHash(Encoding.UTF8.GetBytes(payload));
+        var hash = System.Security.Cryptography.MD5.HashData(Encoding.UTF8.GetBytes(payload));
 
         return BitConverter.ToInt32(hash, 0);
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is not UdpClientWrapper)
+            return false;
+        else
+            return this.GetHashCode() == ((UdpClientWrapper) obj).GetHashCode();
     }
 }
