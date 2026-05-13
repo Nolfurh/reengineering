@@ -73,7 +73,7 @@ jobs:
         run: dotnet build NetSdrClient.sln -c Release --no-restore
       - name: Tests with coverage (OpenCover)
         run: |
-         dotnet test NetSdrClient.sln -c Release --no-build `
+         dotnet test NetSdrClient.sln -c Release --no-build -m:1 `
            --logger trx `
            --results-directory "TestResults" `
            /p:CollectCoverage=true `
