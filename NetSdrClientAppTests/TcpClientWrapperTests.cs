@@ -90,10 +90,10 @@ public class TcpClientWrapperTests
         var client = new TcpClientWrapper("127.0.0.1", _serverPort);
 
         // Act
-        var ex = Assert.ThrowsAsync<InvalidOperationException>(async () => 
+        var ex = Assert.ThrowsAsync<InvalidOperationException>((AsyncTestDelegate) (async () => 
         {
             await client.SendMessageAsync(new byte[] { 0x01 });
-        });
+        }));
 
         //Assert
         Assert.That(ex.Message, Does.Contain("Not connected"));
