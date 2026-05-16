@@ -64,6 +64,41 @@ namespace NetSdrClientAppTests
             Assert.That(parametersBytes.Count(), Is.EqualTo(parametersLength));
         }
 
-        //TODO: add more NetSdrMessageHelper tests
+        [Test]
+        public void TranslateMessage_UnknownControlCode_Test()
+        {
+            // Arrange
+            byte[] validMessage = NetSdrMessageHelper.GetControlItemMessage(
+                NetSdrMessageHelper.MsgTypes.SetControlItem, 
+                NetSdrMessageHelper.ControlItemCodes.ReceiverState, 
+                new byte[] { 0x01 });
+
+            validMessage[2] = 0xFF;
+            validMessage[3] = 0xFF;
+
+            // Act
+            bool success = NetSdrMessageHelper.TranslateMessage(validMessage, out var type, out var code, out _, out _);
+
+            // Assert
+            Assert.That(success, Is.False);
+            Assert.That(code, Is.EqualTo(NetSdrMessageHelper.ControlItemCodes.None));
+        }
+
+        [Test]
+        public void GetSamples_Test()
+        {
+            // Arrange
+            ushort sampleSizeBits = 16;
+            ushort bytesPerSample = (ushort)(sampleSizeBits / 8);
+
+            int[] expectedSamples = { 10, 255, 1024 };
+            byte[] body = expectedSamples.SelectMany(i => BitConverter.GetBytes(i).Take(bytesPerSample)).ToArray();
+
+            // Act
+            var samples = NetSdrMessageHelper.GetSamples(sampleSizeBits, body).ToList();
+
+            // Assert
+            Assert.That(samples, Is.EquivalentTo(expectedSamples));
+        }
     }
 }
