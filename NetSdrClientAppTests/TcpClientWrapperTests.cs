@@ -59,6 +59,26 @@ public class TcpClientWrapperTests
     }
 
     [Test]
+    public async Task Connect_WhenAlreadyEstablishedConnection_Test()
+    {
+        // Arrange
+        var client = new TcpClientWrapper("127.0.0.1", _serverPort);
+        client.Connect();
+        using TcpClient firstServerSideClient = await _testServer.AcceptTcpClientAsync();
+
+        // Act
+        client.Connect();
+        var acceptNextConnectionTask = _testServer.AcceptTcpClientAsync();
+        var timeoutTask = Task.Delay(500);
+        var completedTask = await Task.WhenAny(acceptNextConnectionTask, timeoutTask);
+
+        // Assert
+        Assert.That(completedTask, Is.SameAs(timeoutTask));
+        
+        client.Disconnect();
+    }
+
+    [Test]
     public async Task SendMessageAsync_Test()
     {
         // Arrange
@@ -99,6 +119,32 @@ public class TcpClientWrapperTests
         Assert.That(ex.Message, Does.Contain("Not connected"));
     }
     
+    [Test]
+    public async Task SendMessageAsync_StringParameterOverload_Test()
+    {
+        // Arrange
+        var client = new TcpClientWrapper("127.0.0.1", _serverPort);
+        client.Connect();
+
+        using TcpClient serverSideClient = await _testServer.AcceptTcpClientAsync();
+        using NetworkStream serverStream = serverSideClient.GetStream();
+
+        string dataToSend = "Hello world";
+        var dataByteCount = Encoding.UTF8.GetByteCount(dataToSend);
+        byte[] receiveBuffer = new byte[dataByteCount];
+        
+        // Act
+        await client.SendMessageAsync(dataToSend);
+        
+        // Assert
+        int bytesRead = await serverStream.ReadAsync(receiveBuffer, 0, receiveBuffer.Length);
+
+        Assert.That(bytesRead, Is.EqualTo(dataByteCount));
+        Assert.That(receiveBuffer, Is.EquivalentTo(Encoding.UTF8.GetBytes(dataToSend)));
+        
+        client.Disconnect();
+    }
+
     [Test]
     public async Task StartListeningAsync_Test()
     {
